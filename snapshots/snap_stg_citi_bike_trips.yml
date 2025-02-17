@@ -1,0 +1,12 @@
+snapshots:
+  - name: snap_stg_citi_bike_trips
+    relation: ref('stg_citi_bike_trips')
+    docs:
+      show: true
+    config:
+      alias: "citi_bike_trips"
+      unique_key:
+        - bike_id
+        - start_time
+      strategy: timestamp
+      updated_at: metadata_file_last_modified
