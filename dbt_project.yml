@@ -59,9 +59,6 @@ models:
       +docs:
         node_color: "#008000"
 
-  dbt_project_evaluator:
-    +database: WH_dbt_Project_Evaluator
-
     
 snapshots:
   citi_bike:
@@ -69,20 +66,3 @@ snapshots:
     +dbt_valid_to_current: "to_date('9999-12-31')"
     +docs:
       node_color: "#006400"
-    
-
-seeds:
-  citi_bike:
-    dbt_project_evaluator_seeds:
-      +database: WH_dbt_Project_Evaluator
-      
-  dbt_project_evaluator:
-    dbt_project_evaluator_exceptions:
-      +enabled: false
-
-
-
-# dbt_project_evaluator macro to test project's development quality
-dispatch:
-  - macro_namespace: dbt
-    search_order: ['dbt_project_evaluator', 'dbt']
