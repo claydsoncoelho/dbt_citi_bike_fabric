@@ -1,3 +1,3 @@
 select * 
 from {{ source('source_citi_bike', 'trips') }}
-where tripduration <=0
+where [Trip Duration] <=0

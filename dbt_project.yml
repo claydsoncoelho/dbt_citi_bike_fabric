@@ -42,30 +42,30 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   citi_bike:
     marts:
-      +database: DW
+      +database: WH_Gold_RAB
       +materialized: table
       +docs:
         node_color: "#132a13"
         
     intermediate:
-      +database: STG_DW
+      +database: WH_Silver_Tech_One
       +materialized: view
       +docs:
         node_color: "#004b23"
 
     staging:
-      +database: STG_DATASTORE
+      +database: WH_Silver_Tech_One
       +materialized: view
       +docs:
         node_color: "#008000"
 
   dbt_project_evaluator:
-    +database: DBT_PROJECT_EVALUATOR
+    +database: WH_dbt_Project_Evaluator
 
     
 snapshots:
   citi_bike:
-    +target_database: DATASTORE
+    +target_database: WH_Silver_Tech_One
     +dbt_valid_to_current: "to_date('9999-12-31')"
     +docs:
       node_color: "#006400"
@@ -74,7 +74,7 @@ snapshots:
 seeds:
   citi_bike:
     dbt_project_evaluator_seeds:
-      +database: DBT_PROJECT_EVALUATOR
+      +database: WH_dbt_Project_Evaluator
       
   dbt_project_evaluator:
     dbt_project_evaluator_exceptions:
