@@ -41,23 +41,33 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   citi_bike:
-    marts:
-      +database: WH_Gold_RAB
+    staging:
+      +database: WH_Silver_Tech_One
+      +materialized: view
+      +docs:
+        node_color: "#008000"
+
+    snapshots:
+      +database: WH_Silver_Tech_One
       +materialized: table
       +docs:
-        node_color: "#132a13"
-        
+        node_color: "#006400"
+
     intermediate:
       +database: WH_Silver_Tech_One
       +materialized: view
       +docs:
         node_color: "#004b23"
 
-    staging:
-      +database: WH_Silver_Tech_One
-      +materialized: view
+    marts:
+      +database: WH_Gold_RAB
+      +materialized: table
       +docs:
-        node_color: "#008000"
+        node_color: "#132a13"
+        
+    
+
+    
 
     
 snapshots:

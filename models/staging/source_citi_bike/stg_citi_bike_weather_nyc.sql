@@ -10,23 +10,23 @@ with
     filter_incremental as (
 
         select
-            TIME_READABLE as time_readable,
+            cast(TIME_READABLE as datetime2(6)) as time_readable,
 			CITY_NAME as city_name,
 			COUNTRY as country,
-			CITY_ID as city_id,
+			cast(CITY_ID as int) as city_id,
 			CITY_FINDNAME as city_findname,
-			CITY_LATITUDE as city_latitude,
-			CITY_LONGITUDE as city_longitude,
+			cast(CITY_LATITUDE as float) as city_latitude,
+			cast(CITY_LONGITUDE as float) as city_longitude,
 			CITY_LOCATION as city_location,
 			WEATHER_DESCRIPTION as weather_description,
 			WEATHER_MAIN as weather_main,
-			TEMPERATURE as temperature,
-			HUMIDITY as humidity,
-			PRESSURE as pressure,
-			WIND_SPEED as wind_speed,
-			WIND_DEG as wind_deg,
+			cast(TEMPERATURE as float) as temperature,
+			cast(HUMIDITY as int) as humidity,
+			cast(PRESSURE as float) as pressure,
+			cast(WIND_SPEED as float) as wind_speed,
+			cast(WIND_DEG as float) as wind_deg,
 			METADATA_FILENAME as metadata_filename,
-			METADATA_FILE_ROW_NUMBER as metadata_file_row_number,
+			cast(METADATA_FILE_ROW_NUMBER as int) as metadata_file_row_number,
 			METADATA_FILE_LAST_MODIFIED as metadata_file_last_modified
 
         from source 
