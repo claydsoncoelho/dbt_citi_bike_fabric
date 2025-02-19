@@ -6,7 +6,9 @@ snapshots:
     config:
       alias: "citi_bike_trips"
       unique_key:
-        - bike_id
-        - start_time
+        - citi_bike_trip_id
       strategy: timestamp
       updated_at: metadata_file_last_modified
+      
+# There is an open issue with snapshots in MS Fabric:
+# https://github.com/microsoft/dbt-fabric/issues/250

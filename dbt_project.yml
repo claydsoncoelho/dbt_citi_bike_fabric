@@ -41,48 +41,38 @@ clean-targets:         # directories to be removed by `dbt clean`
 
 models:
   citi_bike:
-    marts:
-      +database: DW
-      +materialized: table
-      +docs:
-        node_color: "#132a13"
-        
-    intermediate:
-      +database: STG_DW
-      +materialized: view
-      +docs:
-        node_color: "#004b23"
-
     staging:
-      +database: STG_DATASTORE
+      +database: WH_Silver_Tech_One
       +materialized: view
       +docs:
         node_color: "#008000"
 
-  dbt_project_evaluator:
-    +database: DBT_PROJECT_EVALUATOR
+    snapshots:
+      +database: WH_Silver_Tech_One
+      +materialized: table
+      +docs:
+        node_color: "#006400"
+
+    intermediate:
+      +database: WH_Silver_Tech_One
+      +materialized: view
+      +docs:
+        node_color: "#004b23"
+
+    marts:
+      +database: WH_Gold_RAB
+      +materialized: table
+      +docs:
+        node_color: "#132a13"
+        
+    
+
+    
 
     
 snapshots:
   citi_bike:
-    +target_database: DATASTORE
+    +target_database: WH_Silver_Tech_One
     +dbt_valid_to_current: "to_date('9999-12-31')"
     +docs:
       node_color: "#006400"
-    
-
-seeds:
-  citi_bike:
-    dbt_project_evaluator_seeds:
-      +database: DBT_PROJECT_EVALUATOR
-      
-  dbt_project_evaluator:
-    dbt_project_evaluator_exceptions:
-      +enabled: false
-
-
-
-# dbt_project_evaluator macro to test project's development quality
-dispatch:
-  - macro_namespace: dbt
-    search_order: ['dbt_project_evaluator', 'dbt']

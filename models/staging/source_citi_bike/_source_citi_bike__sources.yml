@@ -3,8 +3,8 @@ version: 2
 sources:
   - name: source_citi_bike
     description: This is the Citi Bike source system.
-    database: RAW
-    schema: citi_bike
+    database: WH_Bronze_Tech_One_1
+    schema: dbo
     freshness: # default freshness
       warn_after: {count: 12, period: day}
       error_after: {count: 24, period: day}
