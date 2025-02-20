@@ -27,7 +27,7 @@ with
 			cast(WIND_DEG as float) as wind_deg,
 			METADATA_FILENAME as metadata_filename,
 			cast(METADATA_FILE_ROW_NUMBER as int) as metadata_file_row_number,
-			METADATA_FILE_LAST_MODIFIED as metadata_file_last_modified
+			cast(METADATA_FILE_LAST_MODIFIED as datetime2(6)) as metadata_file_last_modified
 
         from source 
 

@@ -64,15 +64,11 @@ models:
       +materialized: table
       +docs:
         node_color: "#132a13"
-        
-    
-
-    
 
     
 snapshots:
   citi_bike:
     +target_database: WH_Silver_Tech_One
-    +dbt_valid_to_current: "to_date('9999-12-31')"
+    +dbt_valid_to_current: "cast('9999-12-31' as date)"
     +docs:
       node_color: "#006400"

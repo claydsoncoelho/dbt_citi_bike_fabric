@@ -9,8 +9,9 @@
 )-%}
 
     with 
-        source_table as (select * from {{ ref(source_model_name) }} ),
-
+        source_table as (select * from {{ ref(source_model_name) }}),
+    
+    {#- Defining target table -#}
     {%- set target_relation_exists, target_relation = get_or_create_relation(
             database = this.database,
             schema = this.schema,
@@ -23,26 +24,54 @@
 
     {% if target_relation_exists %}
 
-        target_table as (select * from {{ this }} ),
+        target_table as (select * from {{ this }} where dbt_current_flag = 'Y'),
 
-    {% else %}
+    {%- else -%}
 
-        target_table as (select top 1 * from source_table where 1=2),
+        target_table as (select top 1 * from source_table where 1=2 order by {{ key_col }}),
 
-    {%- endif %}
+    {% endif %}
 
 
-    relevant_records_from_targe as (
+    relevant_columns_from_source as (
+
+        select 
+            source_table.{{ key_col }}
+            {% for col in other_cols %}, source_table.{{ col }} 
+            {% endfor -%}
+            , source_table.{{ timestamp_col }}
+            , 'source' as source_name
+
+        from source_table
+        left join target_table
+            on source_table.{{ key_col }} = target_table.{{ key_col }}
+            {% for col in other_cols %}and source_table.{{ col }} = target_table.{{ col }} 
+            {% endfor %}
+
+        where target_table.{{ key_col }} is null
+    ),
+
+
+    relevant_records_from_target as (
 
         select 
             target_table.{{ key_col }}
             {% for col in other_cols %}, target_table.{{ col }} 
             {% endfor -%}
+            , target_table.{{ timestamp_col }}
+            , 'target' as source_name
 
         from target_table
-        inner join source_table
-            on target_table.{{ key_col }} = source_table.{{ key_col }}
+        inner join relevant_columns_from_source
+            on target_table.{{ key_col }} = relevant_columns_from_source.{{ key_col }}
 
+    ),
+
+
+    union_source_target as (
+        select *  from relevant_columns_from_source
+        union all
+        select * from relevant_records_from_target
     ),
 
 
@@ -55,6 +84,7 @@
             {% for col in other_cols %}, {{ col }} 
             {% endfor -%}
             , {{ timestamp_col }}
+            , source_name
             , (
                 row_number() over (
                     partition by {{ key_col }} order by {{ timestamp_col }}
@@ -64,7 +94,7 @@
                     partition by {{ key_col }} {% for col in other_cols %}, {{ col }} {%- endfor %} order by {{timestamp_col}}
                 ) 
             ) as change
-        from source_table
+        from union_source_target
     ),
 
 
@@ -74,12 +104,13 @@
             {% for col in other_cols %}, {{ col }}
             {% endfor -%}
             , {{timestamp_col}}
-            -- Only run_num = 1 are intersting. If there are more records identic to the first one, we can ignore them.
+            , source_name
+            -- Only run_num = 1 are intersting. If there are more records identic to the first one, they can be ignored.
             , row_number() over (
-                partition by {{ key_col }}, change order by {{timestamp_col}}
+                partition by {{ key_col }}, change order by {{timestamp_col}} asc, source_name desc
             ) as row_num
             , row_number() over (
-                partition by {{ key_col }} order by {{timestamp_col}}
+                partition by {{ key_col }} order by {{timestamp_col}} asc, source_name desc
             ) as first_row_num
         from flag_changes
     ),
@@ -102,7 +133,7 @@
                 , '{{var("max_date")}}'
             ) as valid_to
         from identify_first_row
-        where row_num = 1
+        where row_num = 1 and source_name = 'source'
     ),
 
 
@@ -111,6 +142,7 @@
             {{ key_col }}
             {% for col in other_cols %}, {{ col }}
             {% endfor -%}
+            , {{ timestamp_col }}
             , cast(valid_from as datetime2(6)) as dbt_valid_from
             , cast(valid_to as datetime2(6)) as dbt_valid_to
             , case valid_to
@@ -128,10 +160,11 @@
             , {{ key_col }}
             {% for col in other_cols %}, {{ col }}
             {% endfor -%}
+            , {{ timestamp_col }}
             , dbt_valid_from
             , dbt_valid_to
-            , current_timestamp as dbt_updated_at
-            , dbt_current_flag
+            , cast(current_timestamp as datetime2(6)) as dbt_updated_at
+            , dbt_current_flag = 'y'
         from add_current_flag
     )
 
